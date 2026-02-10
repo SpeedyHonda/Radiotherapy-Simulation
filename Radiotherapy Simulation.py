@@ -4,12 +4,14 @@ import random
 import matplotlib.pyplot as plt
 
 # Classes
-class Vector3():
+class Vector3(): # Essentially just a tuple of 3 floats but also has some specialised functionality
+    # This is just for ease of use, being able to initialise a vector as Vector3(x, y, z)
     def __init__(self, x_input, y_input, z_input):
         self.x = x_input
         self.y = y_input
         self.z = z_input
 
+    # Converts the vector into a unit vector (meaning the magnitude of the vector is 1 unit)
     def normalise(self):
         sum = (self.x**2 + self.y**2 + self.z**2)**(1/2)
         self.x /= sum
@@ -17,17 +19,17 @@ class Vector3():
         self.z /= sum
         return self
     
+    # This is entirely for the sake of debugging so I can more easily understand how the particles are moving as we can print their exact positions and directions more easily
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
     
+    # Adds a bit to each of the x, y and z. Quite poorly written to be honest, but let's just call it specialised
     def move(self, direction, step):
         self.x += direction.x * step
         self.y += direction.y * step
         self.z += direction.z * step
 
-    
-
-# Water Phantom
+# The Simulation Space
 length, width, height = float(input()), float(input()), float(input())
 voxelSize = float(input())
 nx, ny, nz = int(length / voxelSize), int(width / voxelSize), int(height / voxelSize)
@@ -42,18 +44,14 @@ z = np.arange(nz) * voxelSize
 start_position = Vector3(float(input()), float(input()), float(input()))
 end_position = Vector3(float(input()), float(input()), float(input()))
 
-print(dosages)
-print(x)
-print(y)
-print(z)
-
-def get_voxel_index(pos, x, y, z, voxelSize):
+# Functions
+def get_voxel_index(pos, voxelSize): # Given the position, finds the nearest voxel to access
     ix = int((pos.x + length/2) / voxelSize)
     iy = int((pos.y + width/2) / voxelSize)
     iz = int(pos.z / voxelSize)
     return ix, iy, iz
 
-def get_beam_position(beam_shape, length, width):
+def get_beam_position(beam_shape, length, width): # Gets the particles position accounting for a bit of randomness
     if beam_shape == "circle":
         diameter = min(length, width) / 2
         radius = diameter / 2
@@ -66,13 +64,13 @@ def get_beam_position(beam_shape, length, width):
 
     return x, y
 
-def get_beam_direction(x, y, z):
+def get_beam_direction(x, y, z): # Gets the direction of the particle as a unit vector
     dir = Vector3(end_position.x - x, end_position.y - y, end_position.z - z)
     dir = dir.normalise()
     print(dir)
     return dir
 
-def initialise_particles(number_of_particles, beam_type):
+def initialise_particles(number_of_particles, beam_type): # Creating a dictionary of particles. It has the ID number, attached with another dictionary with position, rotation and energy level
     particles = {}
 
     for i in range(number_of_particles):
@@ -83,7 +81,7 @@ def initialise_particles(number_of_particles, beam_type):
 
     return particles
 
-def move_particles(p, dosages, x, y, z, voxelSize):
+def move_particles(p, dosages, x, y, z, voxelSize): # While we still have particles that have energy and are within the bounds of the simulation space, we move them according to their movement vector, then decrease its energy and add some to the voxel
     step = voxelSize / 5
     energy_loss = 0.05
 
@@ -96,7 +94,7 @@ def move_particles(p, dosages, x, y, z, voxelSize):
 
         while E > 0:
             pos.move(dir, step)
-            ix, iy, iz = get_voxel_index(pos, length, width, height, voxelSize)
+            ix, iy, iz = get_voxel_index(pos, voxelSize)
 
             if 0 <= ix < nx and 0 <= iy < ny and 0 <= iz < nz:
                 dosages[ix, iy, iz] += 1
@@ -112,7 +110,7 @@ def move_particles(p, dosages, x, y, z, voxelSize):
 
         p[i]["Energy Level"] = E
 
-def show_dose_slice(dosages, axis="z", index=0):
+def show_dose_slice(dosages, axis="z", index=0): # This displays a *basic* heatmap describing the dose distribution. Please consider that the x and y heatmaps are vertically flipped
     if axis == "z":
         slice2d = dosages[:, :, index]
     elif axis == "y":
@@ -127,8 +125,7 @@ def show_dose_slice(dosages, axis="z", index=0):
     plt.ylabel("Voxel index")
     plt.show()
 
-
-
+# Running
 particles = initialise_particles(100, "circle")
 move_particles(particles, dosages, x, y, z, voxelSize)
 slice = int(input("What index of slice do you want? "))
