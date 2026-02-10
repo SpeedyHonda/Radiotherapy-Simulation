@@ -81,7 +81,7 @@ def initialise_particles(number_of_particles, beam_type): # Creating a dictionar
 
     return particles
 
-def move_particles(p, dosages, x, y, z, voxelSize): # While we still have particles that have energy and are within the bounds of the simulation space, we move them according to their movement vector, then decrease its energy and add some to the voxel
+def move_particles(p, dosages, voxelSize): # While we still have particles that have energy and are within the bounds of the simulation space, we move them according to their movement vector, then decrease its energy and add some to the voxel
     step = voxelSize / 5
     energy_loss = 0.05
 
@@ -127,7 +127,7 @@ def show_dose_slice(dosages, axis="z", index=0): # This displays a *basic* heatm
 
 # Running
 particles = initialise_particles(100, "circle")
-move_particles(particles, dosages, x, y, z, voxelSize)
+move_particles(particles, dosages, voxelSize)
 slice = int(input("What index of slice do you want? "))
 axis = input("What axis do you want it taken from? ")
 
