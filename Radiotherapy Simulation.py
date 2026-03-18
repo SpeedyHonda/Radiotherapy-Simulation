@@ -51,6 +51,7 @@ def get_voxel_index(pos, voxelSize): # Given the position, finds the nearest vox
     iy = int((pos.y + width/2) / voxelSize)
     #iz = int(pos.z / voxelSize)
     iz = int((pos.z + height/2) / voxelSize)
+    
     return ix, iy, iz
 
 def get_beam_position(beam_shape, length, width): # Gets the particles position accounting for a bit of randomness
@@ -87,13 +88,17 @@ def move_particles(p, dosages, voxelSize): # While we still have particles that 
     energy_loss = 0.05
 
     nx, ny, nz = dosages.shape
-
     for i in p:
         pos = p[i]["Position"]
         dir = p[i]["Rotation"]
         E = p[i]["Energy Level"]
 
+        first_pass = True
         while E > 0:
+            if first_pass:
+                print(p[i]["Position"], p[i]["Rotation"], p[i]["Energy Level"])
+                first_pass = False
+
             pos.move(dir, step)
             ix, iy, iz = get_voxel_index(pos, voxelSize)
 
@@ -129,10 +134,13 @@ for i in range(beams):
     particles = initialise_particles(100, "circle")
     move_particles(particles, dosages, voxelSize)
 
-slice = int(input("What index of slice do you want? "))
+# slice = int(input("What index of slice do you want? "))
 axis = input("What axis do you want it taken from? ")
 
-show_dose_slice(dosages, axis, slice)
+print(dosages)
+for i in range(nx):
+    show_dose_slice(dosages, axis, i)
+
 
 # REMEMBER VOXEL SIZES MUST BE INTEGERS
 # 10 10 10 1 10 0 0 0 0 0 10 5 x
