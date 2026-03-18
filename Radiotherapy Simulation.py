@@ -42,8 +42,8 @@ y = (np.arange(ny) + 0.5) * voxelSize - width / 2
 # z = np.arange(nz) * voxelSize
 z = (np.arange(nz) + 0.5) * voxelSize - height / 2
 
-start_position = Vector3(float(input()), float(input()), float(input()))
-end_position = Vector3(float(input()), float(input()), float(input()))
+start_position = Vector3(0, 0, 0)
+end_position = Vector3(0, 0, 0)
 
 # Functions
 def get_voxel_index(pos, voxelSize): # Given the position, finds the nearest voxel to access
@@ -122,8 +122,13 @@ def show_dose_slice(dosages, axis="z", index=0): # This displays a *basic* heatm
     plt.show()
 
 # Running
-particles = initialise_particles(1000, "circle")
-move_particles(particles, dosages, voxelSize)
+beams = int(input("Enter how many beams you want: "))
+for i in range(beams):
+    start_position = Vector3(float(input()), float(input()), float(input()))
+    end_position = Vector3(float(input()), float(input()), float(input()))
+    particles = initialise_particles(100, "circle")
+    move_particles(particles, dosages, voxelSize)
+
 slice = int(input("What index of slice do you want? "))
 axis = input("What axis do you want it taken from? ")
 
