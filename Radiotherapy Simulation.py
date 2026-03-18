@@ -39,7 +39,8 @@ energy = float(input())
 
 x = (np.arange(nx) + 0.5) * voxelSize - length / 2
 y = (np.arange(ny) + 0.5) * voxelSize - width / 2
-z = np.arange(nz) * voxelSize
+# z = np.arange(nz) * voxelSize
+z = (np.arange(nz) + 0.5) * voxelSize - height / 2
 
 start_position = Vector3(float(input()), float(input()), float(input()))
 end_position = Vector3(float(input()), float(input()), float(input()))
@@ -48,12 +49,13 @@ end_position = Vector3(float(input()), float(input()), float(input()))
 def get_voxel_index(pos, voxelSize): # Given the position, finds the nearest voxel to access
     ix = int((pos.x + length/2) / voxelSize)
     iy = int((pos.y + width/2) / voxelSize)
-    iz = int(pos.z / voxelSize)
+    #iz = int(pos.z / voxelSize)
+    iz = int((pos.z + height/2) / voxelSize)
     return ix, iy, iz
 
 def get_beam_position(beam_shape, length, width): # Gets the particles position accounting for a bit of randomness
     if beam_shape == "circle":
-        diameter = min(length, width) / 2
+        diameter = min(length, width) 
         radius = diameter / 2
         distance = random.random() * radius
         theta = random.random() * 2 * np.pi
@@ -67,7 +69,6 @@ def get_beam_position(beam_shape, length, width): # Gets the particles position 
 def get_beam_direction(x, y, z): # Gets the direction of the particle as a unit vector
     dir = Vector3(end_position.x - x, end_position.y - y, end_position.z - z)
     dir = dir.normalise()
-    print(dir)
     return dir
 
 def initialise_particles(number_of_particles, beam_type): # Creating a dictionary of particles. It has the ID number, attached with another dictionary with position, rotation and energy level
@@ -101,11 +102,6 @@ def move_particles(p, dosages, voxelSize): # While we still have particles that 
             else:
                 break
 
-            if 0 <= ix < nx and 0 <= iy < ny and 0 <= iz < nz:
-                dosages[ix, iy, iz] += 1
-            else:
-                break
-
             E -= energy_loss
 
         p[i]["Energy Level"] = E
@@ -126,11 +122,15 @@ def show_dose_slice(dosages, axis="z", index=0): # This displays a *basic* heatm
     plt.show()
 
 # Running
-particles = initialise_particles(100, "circle")
+particles = initialise_particles(1000, "circle")
 move_particles(particles, dosages, voxelSize)
 slice = int(input("What index of slice do you want? "))
 axis = input("What axis do you want it taken from? ")
 
 show_dose_slice(dosages, axis, slice)
 
+# REMEMBER VOXEL SIZES MUST BE INTEGERS
+# 10 10 10 1 10 0 0 0 0 0 10 5 x
+# 50 50 50 1 6 0 0 0 0 0 50 25 x
+# 50 50 50 1 6 0 0 0 0 0 50 25 z
 
